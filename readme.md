@@ -1,7 +1,9 @@
 # AI Secretary Bot Workflow
 
-This repository contains the exported **n8n workflow** (`workflow.json`) for the AI Secretary Bot.  
-The bot listens to Telegram messages (text or voice), extracts structured information using OpenAI, and appends the results to Google Sheets.
+This repository contains the exported **n8n workflow** (`workflow.json`) for the AI Secretary Bot. The bot listens to Telegram messages (text or voice), extracts structured information using OpenAI, and appends the results to Google Sheets.
+
+## 🖥️ Demo
+<img width="1113" height="395" alt="Image" src="https://github.com/user-attachments/assets/0fd14a9c-546c-4b3a-864b-8e582648640e" />
 
 ## 📂 Files
 - `workflow.json` → The full n8n workflow export.
