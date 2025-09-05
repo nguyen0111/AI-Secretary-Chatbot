@@ -1,0 +1,463 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e655317d-a3a1-4807-ad35-810c9e4c3fd9",
+      "name": "Telegram Trigger",
+      "webhookId": "200bc06a-e3cb-4c26-828a-a1c308ef2d4e",
+      "credentials": {
+        "telegramApi": {
+          "id": "4JIZpy8SmcUjQSjz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "d780f74e-8b78-4485-8d9b-04350f4d0b41"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2236bbe8-4b65-4807-85e0-fffd0c2732ef",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e7046b0b-d69a-4665-b6a3-cc43df36b589",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "652cd9ec-2f6d-4f90-8c26-0299938c6cdf",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "c55fd920-bec7-44f6-a8a8-e18a3a1d794a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        96
+      ],
+      "id": "8fe171fc-9166-4a45-b4d6-4179ceef9c09",
+      "name": "Get a file",
+      "webhookId": "8ce28fc2-3d7d-4572-9bac-9703717e1698",
+      "credentials": {
+        "telegramApi": {
+          "id": "4JIZpy8SmcUjQSjz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        624,
+        96
+      ],
+      "id": "83e7994e-0b99-4eb0-996d-1e715c49190b",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "2MihR5SUIzdiJIbX",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are my personal secretary for every call. I will send you a student's conversation transcript. \n\nYour task is to extract structured information from the transcript. Respond ONLY in valid JSON with the following keys:\n\n{\n  \"Name\": \"\",\n  \"ComingToLUT\": \"\",\n  \"TuitionFeePaid\": \"\",\n  \"AppliedHousing\": \"\",\n  \"ImportantInformation\": \"\",\n  \"WhyLUT\": \"\",\n  \"SummarizedConversation\": \"\"\n}\n\nDo NOT include any text, explanations, or quotes outside the JSON. Make sure the output is a valid JSON object.\n\nHere is the transcript:\n\n{{ $json.text }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "4bb77514-1a15-409d-9b13-a487e0eaa109",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o3",
+          "mode": "list",
+          "cachedResultName": "o3"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        240
+      ],
+      "id": "fb5e59ae-ac96-4b32-964f-a38dbd408116",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "2MihR5SUIzdiJIbX",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        0
+      ],
+      "id": "b8826214-6a48-456d-b883-6659f54e48ab",
+      "name": "Send a text message",
+      "webhookId": "b0b350f4-e6db-4673-ae7d-2838476940f2",
+      "credentials": {
+        "telegramApi": {
+          "id": "4JIZpy8SmcUjQSjz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TmlZHxxbGt0XJfaCKZQ_NC7IUnMJc-7BbrUwv43OAos",
+          "mode": "list",
+          "cachedResultName": "Call tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TmlZHxxbGt0XJfaCKZQ_NC7IUnMJc-7BbrUwv43OAos/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "January",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TmlZHxxbGt0XJfaCKZQ_NC7IUnMJc-7BbrUwv43OAos/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{$json[\"output\"][\"Name\"]}}",
+            "Coming to LUT": "={{$json[\"output\"][\"ComingToLUT\"]}}",
+            "Tuition fee": "={{$json[\"output\"][\"TuitionFeePaid\"]}}",
+            "Housing": "={{$json[\"output\"][\"AppliedHousing\"]}}",
+            "Why LUT": "={{$json[\"output\"][\"WhyLUT\"]}}",
+            "Note": "={{$json[\"output\"][\"SummarizedConversation\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coming to LUT",
+              "displayName": "Coming to LUT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tuition fee",
+              "displayName": "Tuition fee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Housing",
+              "displayName": "Housing",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Why LUT",
+              "displayName": "Why LUT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Note",
+              "displayName": "Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "c9fefcfe-a19e-4f0d-9d7e-9523b7440565",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sVqyJhJ4IJgPTvzy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"Name\": \"Nguyen Tuong\",\n  \"ComingToLUT\": \"Yes, arriving late October\",\n  \"TuitionFeePaid\": \"Yes\",\n  \"AppliedHousing\": \"Yes, applied for housing\",\n  \"ImportantInformation\": \"Arriving later than usual, keep in mind\",\n  \"WhyLUT\": \"\",\n  \"SummarizedConversation\": \"Student confirmed tuition paid, housing applied, and will arrive late October.\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1008,
+        240
+      ],
+      "id": "a324722a-f4c9-4c27-9c20-ff4cd6f3029b",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "34d79301-c948-4a5d-94c9-c0f968fccae7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "501b5abdbbb82ec7bb9f93db2dfbba319c7345a45f4985661a8016fb042e1147"
+  },
+  "id": "Q7WQ4P1u3PEM6Yke",
+  "tags": []
+}
