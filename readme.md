@@ -1,6 +1,15 @@
 # AI Secretary Bot Workflow
 
-This repository contains the exported **n8n workflow** (`workflow.json`) for the AI Secretary Bot. The bot listens to Telegram messages (text or voice), extracts structured information using OpenAI, and appends the results to Google Sheets.
+This repository contains the exported n8n workflow (workflow.json) for the AI Secretary Bot, a Telegram bot designed to help track student conversations and registrations for LUT University.
+
+The bot automatically listens to messages and voice notes from students, extracts structured information such as:
+- Name
+- Arrival status at LUT
+- Tuition fee payment status
+- Housing application
+- Important notes
+
+…and saves it directly into a Google Sheet for easy tracking. It also replies to the user with a confirmation message, so they know their information has been recorded.
 
 ## 🖥️ Demo
 <img width="1113" height="395" alt="Image" src="https://github.com/user-attachments/assets/0fd14a9c-546c-4b3a-864b-8e582648640e" />
